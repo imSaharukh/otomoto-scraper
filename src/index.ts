@@ -26,11 +26,9 @@ app.get("/scrape_data", async (req: Request, res: Response) => {
 });
 
 app.get("/getDataFromDB", async (req: Request, res: Response) => {
-  const scraper = new Scraper();
-  const data = await scraper.scrape();
-  const count = await scraper.getTotalAdsCount(initalUrl);
+  const data = await myDataSource.getRepository(TruckItemEntity).find();
 
-  res.send({ data, count });
+  res.send({ data });
 });
 
 app.listen(port, () => {

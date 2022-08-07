@@ -9,6 +9,9 @@ export class TruckItemEntity {
   itemId?: string;
 
   @Column()
+  price?: string;
+
+  @Column()
   title?: string;
 
   @Column()

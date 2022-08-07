@@ -10,7 +10,7 @@ const myDataSource = new DataSource({
   entities: ["src/entity/*{.js,.ts}"],
   logging: true,
   ssl: { rejectUnauthorized: false },
-
+  dropSchema: true,
   synchronize: true,
 });
 

@@ -106,10 +106,23 @@ export class Scraper {
     };
 
     console.log(data);
-    const tms = myDataSource.getRepository(TruckItemEntity).create(data);
-    const results = await myDataSource.getRepository(TruckItemEntity).save(tms);
-    return results;
+    const result = await myDataSource.getRepository(TruckItemEntity).upsert(
+      {
+        itemId: data.itemId,
+        title: data.title,
+        price: data.price ?? "Not Found",
+        registrationDate: data.registrationDate,
+        productionDate: data.productionDate,
+        mileage: data.mileage,
+        power: data.power,
+      },
+      { conflictPaths: ["itemId"] }
+    );
+    console.log(result);
+
+    // const results = await myDataSource.getRepository(TruckItemEntity).save(tms);
     return data;
+    // return data;
   }
 
   parseData(data: string | undefined) {
