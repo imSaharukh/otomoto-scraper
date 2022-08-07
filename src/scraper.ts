@@ -1,8 +1,11 @@
 import * as cheerio from "cheerio";
+import myDataSource from "./app-data-source";
 import { baseAxios, initalUrl } from "./const";
+import { TruckItemEntity } from "./entity/truckitems.entity";
+import { TruckItem } from "./types/truck_item.type";
 
-export class Scrapter {
-  async scrape() {
+export class Scraper {
+  async scrape(): Promise<TruckItem[]> {
     const items: any[] = [];
     let url: string | undefined = initalUrl;
     let currentPage = 1;
@@ -14,12 +17,14 @@ export class Scrapter {
       this.addItems($, items);
       url = this.getNextPageUrl(currentPage, $);
 
+      if ((currentPage = 1)) break; //for debug purposes
+
       if (!url) break;
 
       currentPage++;
     }
 
-    const truckItems = [];
+    const truckItems: TruckItem[] = [];
 
     for await (const item of items) {
       const truckItem = await this.scrapeTruckItem(item.link);
@@ -27,7 +32,7 @@ export class Scrapter {
       truckItems.push(truckItem);
     }
 
-    return { data: truckItems };
+    return truckItems;
   }
 
   async addItems($: cheerio.CheerioAPI, items: any[]) {
@@ -48,7 +53,10 @@ export class Scrapter {
     });
   }
 
-  getTotalAdsCount($: cheerio.CheerioAPI) {
+  async getTotalAdsCount(url: string) {
+    const html = await baseAxios.get(url);
+
+    const $ = cheerio.load(html.data);
     const total = $('h1[data-testid="results-heading"]')
       .text()
       ?.match(/\d/g)
@@ -73,45 +81,34 @@ export class Scrapter {
     return nextPage;
   }
 
-  async scrapeTruckItem(url: string) {
-    //   throw new Error("Function not implemented.");
-    //   const url =
-    //     "https://www.otomoto.pl/oferta/mercedes-benz-actros-1848-giga-space-ID6EPiV6.html";
-
+  async scrapeTruckItem(url: string): Promise<TruckItem> {
     const html = await baseAxios.get(url);
     const $ = cheerio.load(html.data);
-
-    //   console.log("price ", $("div[class=offer-params__value]").eq(4).text());
 
     const itemId = $("#ad_id");
     const title = this.parseData($(".offer-title.big-text").first().text());
     const price = this.parseData(
       $("div[class=offer-price]").attr("data-price")?.replace(" ", "")
     );
-    const regDate = this.parseData(
-      $("div[class=offer-params__value]").eq(12).text()
-    );
-    const productionDate = this.parseData(
-      $("div[class=offer-params__value]").eq(4).text()
-    );
-    const mileage = this.parseData(
-      $("div[class=offer-params__value]").eq(5).text()
-    );
-    const power = this.parseData(
-      $("div[class=offer-params__value]").eq(7).text()
-    );
+    const regDate = this.getTruckItemValue($, "Pierwsza rejestracja");
+    const productionDate = this.getTruckItemValue($, "Rok produkcji");
+    const mileage = this.getTruckItemValue($, "Moc");
+    const power = this.getTruckItemValue($, "Przebieg");
 
-    const data = {
-      itemId: itemId.html(),
+    const data: TruckItem = {
+      itemId: itemId.html()?.toString(),
       title: title,
       price: price,
-      regDate: regDate,
+      registrationDate: regDate,
       productionDate: productionDate,
       mileage: mileage,
       power: power,
     };
 
     console.log(data);
+    const tms = myDataSource.getRepository(TruckItemEntity).create(data);
+    const results = await myDataSource.getRepository(TruckItemEntity).save(tms);
+    return results;
     return data;
   }
 
@@ -120,8 +117,29 @@ export class Scrapter {
     if (!result || result == "") return "Not Found";
     return result;
   }
+
+  getTruckItemValue($: cheerio.CheerioAPI, label: string) {
+    return this.parseData(
+      $(".offer-params__item")
+        .filter((i, el) => {
+          return $(el).find(".offer-params__label").text() == label;
+        })
+        .find("div[class=offer-params__value]")
+        .text()
+    );
+  }
 }
 // scrapeTruckItem(){}
 
-const scraper = new Scrapter();
-scraper.scrape();
+// const scraper = new Scraper();
+// scraper.scrape();
+
+// function parseData(data: string | undefined) {
+//   const result = data?.trim().replace("\n", "");
+//   if (!result || result == "") return "Not Found";
+//   return result;
+// }
+
+// scrapeTruckItem(
+//   "https://www.otomoto.pl/oferta/mercedes-benz-actros-1848-giga-space-ID6EPiV6.html"
+// );
