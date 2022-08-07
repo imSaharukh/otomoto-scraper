@@ -10,9 +10,10 @@ const myDataSource = new DataSource({
   entities:
     // process.env.NODE_ENV == "production"
     // ?
-    ["dist/entity/*.js"],
+    // ["dist/entity/*.js"],
 
-  // : ["src/entity/*.js"],
+    // :
+    ["src/entity/*{.js,.ts}"],
   logging: true,
   ssl: { rejectUnauthorized: false },
   dropSchema: false,

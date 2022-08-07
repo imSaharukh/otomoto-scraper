@@ -23,6 +23,8 @@ export class Scraper {
       this.addItems($, items);
       url = this.getNextPageUrl(currentPage, $);
 
+      if (currentPage >= 50) break; //max 50 pages
+
       // if ((currentPage = 1)) break; //for debug purposes
 
       if (!url) break;
