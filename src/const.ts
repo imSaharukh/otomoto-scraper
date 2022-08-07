@@ -1,4 +1,7 @@
 import axios from "axios";
+import axiosRetry from "axios-retry";
+
+axiosRetry(axios, { retries: 3 });
 
 export const baseURL = "https://www.otomoto.pl";
 export const baseAxios = axios.create({ baseURL: baseURL });

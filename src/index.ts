@@ -22,10 +22,10 @@ app.get("/scrape_data", async (req: Request, res: Response) => {
   const data = await scraper.scrape();
   const count = await scraper.getTotalAdsCount(initalUrl);
 
-  res.send({ data, count });
+  res.send({ totalAds: count, data });
 });
 
-app.get("/getDataFromDB", async (req: Request, res: Response) => {
+app.get("/get_data_from_db", async (req: Request, res: Response) => {
   const data = await myDataSource.getRepository(TruckItemEntity).find();
 
   res.send({ data });
