@@ -7,7 +7,7 @@ const myDataSource = new DataSource({
   username: "olcnevtmqiqckp",
   password: "03bdb798b965cdce97551a48bc579a8e98514606a3551d0590b5c46a1af553ae",
   database: "d825t0fl5a148a",
-  entities: ["src/entity/*{.js,.ts}"],
+  entities: ["**/entity/*{.js,.ts}"],
   logging: true,
   ssl: { rejectUnauthorized: false },
   // dropSchema: true,
