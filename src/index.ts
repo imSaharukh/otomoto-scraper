@@ -3,6 +3,7 @@ import myDataSource from "./app-data-source";
 import { initalUrl } from "./const";
 import { TruckItemEntity } from "./entity/truckitems.entity";
 import { Scraper } from "./scraper";
+import "reflect-metadata";
 
 const app: Express = express();
 const port = process.env.PORT || 3000;

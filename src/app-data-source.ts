@@ -7,11 +7,14 @@ const myDataSource = new DataSource({
   username: "olcnevtmqiqckp",
   password: "03bdb798b965cdce97551a48bc579a8e98514606a3551d0590b5c46a1af553ae",
   database: "d825t0fl5a148a",
-  entities: ["**/entity/*{.js,.ts}"],
+  entities:
+    process.env.NODE_ENV == "production"
+      ? ["dist/entity/*.js"]
+      : ["src/entity/*.js"],
   logging: true,
   ssl: { rejectUnauthorized: false },
-  // dropSchema: true,
-  // synchronize: true,
+  dropSchema: false,
+  synchronize: false,
 });
 
 export default myDataSource;
