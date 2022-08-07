@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start:dev": "nodemon src/index.ts",
-    "start:prod": "node dist/index.js",
+    "start:prod": "cross-env NODE_ENV=production node dist/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\""
   },
   "keywords": [],

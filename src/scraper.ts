@@ -10,9 +10,15 @@ export class Scraper {
     let url: string | undefined = initalUrl;
     let currentPage = 1;
     while (true) {
-      const html = await baseAxios.get(url);
+      let html;
+      try {
+        html = await baseAxios.get(url);
+      } catch (error) {
+        console.log(error);
+        break;
+      }
 
-      const $ = cheerio.load(html.data);
+      const $ = cheerio.load(html?.data);
 
       this.addItems($, items);
       url = this.getNextPageUrl(currentPage, $);
@@ -28,6 +34,10 @@ export class Scraper {
 
     for await (const item of items) {
       const truckItem = await this.scrapeTruckItem(item.link);
+
+      if (!truckItem) {
+        continue;
+      }
 
       truckItems.push(truckItem);
     }
@@ -81,16 +91,18 @@ export class Scraper {
     return nextPage;
   }
 
-  async getHtml(url: string) {
-    const html = await baseAxios.get(url);
-    return html;
-  }
-
-  async scrapeTruckItem(url: string): Promise<TruckItem> {
-    const html = await baseAxios.get(url);
+  async scrapeTruckItem(url: string): Promise<TruckItem | undefined> {
+    let html;
+    try {
+      html = await baseAxios.get(url);
+    } catch (error) {
+      console.log(error);
+      return {};
+    }
     const $ = cheerio.load(html.data);
 
     const itemId = $("#ad_id");
+    if (!itemId) return undefined;
     const title = this.parseData($(".offer-title.big-text").first().text());
     const price = this.parseData(
       $("div[class=offer-price]").attr("data-price")?.replace(" ", "")
